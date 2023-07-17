@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>DSCI554 final</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="./node_modules/d3/dist/d3.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+    <div class="topnav">
+        <a class="active" href="./charts.html">Home</a>
+        <a href="./secondpage.html">Detailed Charts</a>
+        <a href="./thirdpage.html">Model Charts</a>
+      </div>
+    
+      <style>
+        /* Add a black background color to the top navigation */
+    .topnav {
+      background-color: rgb(238, 238, 229);
+      overflow: hidden;
+    }
+    
+    /* Style the links inside the navigation bar */
+    .topnav a {
+      float: left;
+      color: #000000;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+    
+    /* Change the color of links on hover */
+    .topnav a:hover {
+      background-color: #51a2d8;
+      color: black;
+    }
+    
+    /* Add a color to the active/current link */
+    .topnav a.active {
+      background-color: #51a2d8;
+      color: white;
+    }
+      </style>
+    <body style="background-color:rgb(205, 242, 245);"></body>
+    <h3 class="text-center">Timeseries multiline chart for Depressive Disorder rate group by 50 states in USA from 2020 through 2022</h3>
+    <div id="bystate"></div>
+    <script src="bystate.js"></script>
+
+    <h2 class="text-center">Average depressive disorder rate of the states in U.S. from 2020 through 2022</h2>
+    <div class="text-center mb-2">
+        <span class="button filter" id="reset">Reset</span>
+    </div>
+    <div class="text-center mb-2">
+        Show <span class="button filter" id="all50">all 50</span>
+        <span class="button filter" id="top10">top 10 by value</span>
+        <span class="button filter" id="bottom10">buttom 10 by value</span>
+    </div>
+    <div class="text-center mb-2">
+        Sort by <span class="button sort" id="name">Order alphabetic by name</span>
+        <span class="button sort" id="value">Order ascending by value</span>
+        <span class="button sort" id="devalue">Order descending by value</span>
+    </div>
+
+    <div id="statebarchart"></div>
+    <script src="statebarchart.js"></script>
+    <link href="statebarchart.css" rel="stylesheet">
+<!-- 
+    <h3 class="text-center">Model Effectiveness by Subgroup</h3>
+    <h4 class="text-center">Higher values are more predictive</h4>
+    <div id="model"></div>
+    <script src="model.js"></script>
+
+
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <div id="scatterplot" style="padding: 50px;"></div>
+    <script src="scatterplot.js"></script> -->
+    
+    
+  
+
+
+
+
+</body>
+
+</html>

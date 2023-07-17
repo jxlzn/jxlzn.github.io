@@ -1,0 +1,51 @@
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-family: Courier;
+  font-size: 1em;
+}
+
+text {
+  font-family: Courier;
+  font-size: 0.85em;
+}
+
+svg {
+  display: block;
+  margin: auto;
+  background-color: #fafafa;
+}
+
+.bar {
+  fill: #add8e677;
+  /* #add8e6 is hex code for lightblue */
+}
+
+text.label {
+  text-anchor: middle;
+  alignment-baseline: central;
+}
+
+text.name {
+  font-weight: bold;
+  text-anchor: middle;
+  alignment-baseline: central;
+}
+
+.button {
+  border-radius: 3px;
+  background-color: #eee;
+  padding: 5px;
+  margin: 5px;
+  cursor: default;
+  font-family: Courier;
+  font-size: 0.85em;
+  font-weight: bold;
+  cursor: default;
+  user-select: none;
+}

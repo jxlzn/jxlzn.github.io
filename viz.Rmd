@@ -1,0 +1,495 @@
+---
+title: "Professional Models -- Model Report"
+author: "Jack Weyer"
+date: '2022-12-2'
+output:
+  pdf_document: default
+  html_document: default
+---
+We begin by loading in the required packages and the initial project CSV.
+```{r}
+library(tidyverse)
+library(usmap)
+library(scales)
+library(lubridate)
+library(tidymodels)
+df <- read_csv("Indicators_of_Anxiety_or_Depression_Based_on_Reported_Frequency_of_Symptoms_During_Last_7_Days.csv")
+```
+
+
+```{r}
+#df$Indicator <- df$Indicator %>% as.factor()
+```
+
+We have 9 different "Group" variables. We will split these up when modeling because we do not have information beyond the subgroup within groups.
+```{r}
+df$Group %>% unique()
+```
+
+By filtering to state values, we can group variables by state and visualize the mean anxiety or depressive disorder symptoms. We see a possible trend that the symptoms are more present in the South.
+```{r}
+state_data <- df %>% 
+  filter(Group == "By State", Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  group_by(State) %>% 
+  summarise(value = mean(Value))
+  
+state_data <- state_data %>% rename(state = State)
+
+state_data$state <- state_data$state %>% as.factor() 
+  
+plot_usmap(data = state_data, values = "value", color = "black") +
+  scale_fill_gradient2(
+    midpoint = mean(state_data$value), mid = "white", low = muted("blue"), high =  muted("red"), name = "", label = scales::comma
+  )  + theme(legend.position = "right") + labs(title = "% with Symptoms of Anxiety Disorder or Depressive Disorder")
+```
+
+Cleaning up the data a bit, we change the necessary variables to factors. We also add a "middleDay" variable which is the middle of the weekly survey window. From that, we pull the month and year.
+```{r}
+df$State <- df$State %>% as.factor()
+df$Subgroup <- df$Subgroup %>% as.factor()
+df$start <- as.Date(df$`Time Period Start Date`, format = '%m/%d/%Y')
+df$end <- as.Date(df$`Time Period End Date`, format = '%m/%d/%Y')
+df$middleDay <- df$start + floor((df$end - df$start)/2)
+
+
+
+df <- df %>% 
+  select(-Phase, -`Time Period`, -`Time Period Label`, -`Time Period Start Date`, -`Time Period End Date`, -`Confidence Interval`, -`Quartile Range`,
+              -start, -end) %>% 
+  mutate(Month = month(df$middleDay),
+         Year = year(df$middleDay)) %>% 
+  filter(!is.na(Value))
+```
+
+Splitting by year, 2020 is a clear outlier in anxiety and depressive symptom rates, which is more clear when adding the error-bars from the confidence intervals. 2021 and 2022 are very similar. This leads us to wonder whether the emergence of Covid in 2020 had an impact on these increased rates.
+```{r}
+df %>% 
+  filter(Group == "National Estimate") %>% 
+  group_by(Year) %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>%
+  summarise(avg = mean(Value), LowCI = mean(`Low CI`), HighCI = mean(`High CI`)) %>% 
+  ggplot(aes(x = as.factor(Year), y = avg, fill = as.factor(Year))) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = avg, ymax = HighCI)) +
+  labs(title = "% with Symptoms of Anxiety Disorder or Depressive Disorder",
+       subtitle = "USA data. Statistically higher in 2020",
+       x = "",
+       y = "") +
+  theme(legend.position = "none")
+```
+This can also be visualized as a line chart, where we again see that anxiety and depressive symptom rates were highest in 2020, but also that they peaked in the winter of 2020.
+```{r}
+df %>% 
+  filter(Group == "National Estimate",
+         Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  ggplot(aes(x = middleDay, y = Value)) +
+  geom_line() +
+  labs(x = "Date",
+       y = "National Despression/Anxiety Symptoms Rate",
+       title = "Despressive/Anxiety Symptom Rates were much higher in 2020")
+```
+We add in national Covid case counts from the CDC.
+```{r}
+covid <- read_csv("data_table_for_weekly_case_trends__the_united_states.csv")
+write.csv(df, file="cleaned_data.csv")
+```
+Filter the data for national estimates of anxiety and depressive disorder.
+```{r}
+cleanUS <- df %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  filter(Group == "National Estimate") %>% 
+  select(Indicator, Value, middleDay)
+```
+
+We must do some cleaning on the Covid variable to reach the same format as the middleDay value from the original data.
+```{r}
+covid <- covid %>% 
+  mutate(Date_ = gsub(" ", "/", Date)) %>% 
+   mutate(Date_ = gsub("//", "/", Date_)) %>% 
+  mutate(Date = as.Date(Date_, "%b/%d/%Y")) %>% 
+  select(-Geography, -`Historic Cases`,-Date_)
+```
+
+Because some of the dates don't line-up due to polling holes in the original data, we manually find the closest dates in the Covid data to append their counts
+```{r}
+ordered <- covid %>% arrange(Date)
+
+Case_counts <- ordered$`Weekly Cases`[c(14:25, 31,33,35,37,39,41,43,45,47,51,53,55, 57,59,61,65,67,69,71,73,75,79,81,83,85,87,89,98,102,106,111,115,119,124,128,132,139,142)]
+```
+
+Now our data has the rough amount of Covid counts for the time-periods of our study.
+```{r}
+cleanUS <- cleanUS %>% 
+  arrange(middleDay) %>% 
+  mutate(Weekly_Cases = Case_counts)
+```
+
+We add in an "increase" variable which could capture some signal in anxiety and depressive rates by accounting for how much Covid rates have increased from the previous time period.
+```{r}
+cleanUS <- cleanUS %>% mutate(increase = (Weekly_Cases - lag(Weekly_Cases)) / lag(Weekly_Cases))
+```
+
+#Modeling
+We randomly split our national estimate data into training and testing sets of 70% and 30% respectively, stratified on anxiety and depressive symptom rate value.
+```{r}
+split <- initial_split(cleanUS, seed = 509, prop=.7, strata = Value)
+train <- training(split)
+test <- testing(split)
+```
+
+We set up our model workflow as a linear regression model and fit it to the training value.
+```{r}
+lm_model <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  set_mode("regression")
+
+lm_fit <- lm_model %>% 
+  fit(Value ~ Weekly_Cases + increase + middleDay, data = train)
+```
+
+
+```{r}
+summary(lm_fit$fit)
+
+lm_fit <- lm_model %>% 
+  fit(Value ~ Weekly_Cases + middleDay, data = train)
+```
+We get a RMSE of 3.1 on the test data with an R^2 of 0.44.
+```{r}
+results <- predict(lm_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value, estimate = .pred)
+rsq(results, truth = Value, estimate = .pred)
+```
+
+Next we make a model for the Age group. We filter to age, select the proper variables for modeling, and join with the Covid counts data. We will do this same process of filtering, selecting, and joining for each Grouped variable set.
+```{r}
+ages <- df %>% filter(Group == "By Age") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+We also do a random stratified split, model fit, and scatterplot for each Grouped variable set.
+```{r}
+split <- initial_split(ages, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+
+age_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(age_fit$fit)
+
+results <- predict(age_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.92, RMSE: 3.3",
+       color = "Age Group") +
+  theme_classic()
+
+age_preds <- results %>% 
+  filter(!is.na(.pred)) %>% 
+  select(Subgroup, .pred, Value.x)
+```
+We get very strong fit values for age, especially considering that we have 7 different subgroups. There is a strong negative trend of age and anxiety and depressive symptom rates during this time period.
+
+We next split by Race/Hispanic ethnicity.
+```{r}
+races <- df %>% filter(Group == "By Race/Hispanic ethnicity") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+...and fit the linear model.
+```{r}
+split <- initial_split(races, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+
+race_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(race_fit$fit)
+
+results <- predict(race_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.77, RMSE: 3.5",
+       color = "") +
+  theme_classic() +
+  theme(legend.position = "right")
+```
+The predictions are less strong here.
+
+Next we split by education.
+```{r}
+educations <- df %>% filter(Group == "By Education") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+...and fit the model.
+```{r}
+split <- initial_split(educations, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+
+edu_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(edu_fit$fit)
+
+results <- predict(edu_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.71, RMSE: 3.6",
+       color = "Education Level") +
+  theme_classic()
+```
+It appears the more education one has, the less they feel anxiety and depressive symptoms.
+
+Next we split by state.
+```{r}
+states <- df %>% filter(Group == "By State") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+...and model
+```{r}
+split <- initial_split(states, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+
+states_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(states_fit$fit)
+
+results <- predict(states_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.36, RMSE: 4.3",
+       color = "") +
+  theme_classic()
+
+state_preds <- results %>% filter(!is.na(.pred)) %>% 
+  select(Subgroup, Value.x, .pred)
+```
+The model is not very strong but that is to be expected with so many different states to capture effects for.
+
+Next we split by sex.
+```{r}
+sex <- df %>% filter(Group == "By Sex") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+...and fit the model.
+```{r}
+split <- initial_split(sex, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+
+sex_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(sex_fit$fit)
+
+results <- predict(sex_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.54, RMSE: 3.7",
+       color = "Sex") +
+  theme_classic()
+```
+Females have higher levels of anxiety and depresssive symptoms than males but the fit is not very strong.
+
+Now we split by disability status.
+```{r}
+disability <- df %>% filter(Group == "By Disability status") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+```{r}
+split <- initial_split(disability, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+disability_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(disability_fit$fit)
+
+results <- predict(disability_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.99, RMSE: 1.7",
+       color = "") +
+  theme_classic()
+```
+This gives us our strongest fit, with people with disabilities with noticebaly higher rates of anxiety and depressive sympoms at around 60%.
+
+Next, we split by gender identity.
+```{r}
+gender <- df %>% filter(Group == "By Gender identity") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+
+```
+
+...and model
+```{r}
+split <- initial_split(gender, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+gender_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(gender_fit$fit)
+
+results <- predict(gender_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.94, RMSE: 4.0",
+       color = "Gender Identity") +
+  theme_classic()
+```
+Again, we have a very strong fit, with transgender people having anxiety and depressive symptom rates much higher than other individuals.
+
+We split by sexual orientation.
+```{r}
+orientation <- df %>% filter(Group == "By Sexual orientation") %>% 
+  filter(Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+  select(Subgroup, Value, middleDay, Year, Month) %>% 
+  left_join(cleanUS, by = 'middleDay') %>% 
+  select(-Indicator, - Value.y)
+```
+
+```{r}
+split <- initial_split(orientation, seed = 509, prop=.7, strata = Value.x)
+train <- training(split)
+test <- testing(split)
+
+orientation_fit <- lm_model %>% 
+  fit(Value.x ~ Weekly_Cases + middleDay + Subgroup + increase, data = train)
+
+summary(orientation_fit$fit)
+
+results <- predict(orientation_fit, new_data = test) %>% bind_cols(test)
+rmse(results, truth = Value.x, estimate = .pred)
+rsq(results, truth = Value.x, estimate = .pred)
+
+ggplot(data = results, mapping = aes(.pred, Value.x, color = Subgroup)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope=1) +
+  labs(x = "Predicted Anxiety and Depression Rate (%)",
+       y = "Actual Rate (%)",
+       title = "R-squared: 0.92, RMSE: 3.8",
+       color = "") +
+  theme_classic()
+```
+We get a strong fit, especially considering we have three subgroups, with bisexual people having higher symptom rates than gay/lesbian people than straight people.
+
+#Model Comparison
+Now we want to compare the effectiveness of the models.
+```{r}
+subgroups <- c("Disability Status", "Gender Identity", "Age Group", "Sexual Orientation", "Race/Ethnicity", "Education Level", "Sex", "USA", "State")
+
+R2 <- c(0.993, 0.935, 0.917, 0.916, 0.769, 0.712, 0.540, 0.512, 0.359)
+
+models <- data.frame(Subgroup = subgroups,
+                     R2 = R2)
+```
+
+The chart below shows the test R^2 value of each model which was split by Group. Higher R^2 values indicate anxiety and depressive symptom rates which were easier to predict, which implies more "divided" rates within the group. Disability status, gender identity, and age group were the most predictable, while state, national rates, and sex were the least predictive.
+```{r}
+models %>% 
+  ggplot(aes(fill = R2, x = R2, y = reorder(Subgroup, R2))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Test R-squared value",
+       y = "",
+       title = "Model Effectiveness by Subgroup",
+       subtitle = "Higher values are more predictive") +
+  scale_fill_gradient2(low = "blue", high ="red", midpoint = mean(models$R2), mid = "gray") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+Here, we write out several files for other analyses.
+```{r}
+write.csv(state_data, file="state_data.csv")
+state_ts <-  df %>% 
+  filter(Group == "By State", Indicator == "Symptoms of Anxiety Disorder or Depressive Disorder") %>% 
+   select(middleDay, State, Value)
+
+write.csv(state_ts, file="state_ts.csv")
+
+write.csv(state_preds, file = "state_preds.csv")
+
+write.csv(age_preds, file = "age_preds.csv")
+
+write.csv(models, file = "model_scores.csv")
+```
+

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>DSCI554 final</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="./node_modules/d3/dist/d3.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+
+  <link href="node_modules/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="./github-dark-dimmed.min.css">
+  <script src="highlight.min.js"></script>
+
+  <script src="node_modules/highlightjs-copy/dist/highlightjs-copy.min.js"></script>
+  <link rel="stylesheet" href="node_modules/highlightjs-copy/dist/highlightjs-copy.min.css" />
+  <script src="https://d3js.org/topojson.v3.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+  <script src="node_modules/topojson-client/dist/topojson-client.min.js"></script>
+<script>
+ 
+var topology = topojson.topology({foo: geojson});
+ 
+</script> 
+  <script>
+    hljs.highlightAll();
+    hljs.addPlugin(new CopyButtonPlugin());
+  </script>
+
+</head>
+
+<body> 
+  
+    <h1>Mental Health Issues due to Covid-19 in U.S.A from 2020 through 2022</h1>
+    <br>
+    <!-- Buttons Bar Chart -->
+    <h2>Average Depressive Disorder rate in Different states of U.S.A</h2>
+    <div class="text-center mb-2">
+        <span class="button filter" id="reset">Reset</span>
+    </div>
+    <div class="text-center mb-2">
+        Show <span class="button filter" id="all50">All 50 States</span>
+        <span class="button filter" id="top10">10 States with the max. rate</span>
+        <span class="button filter" id="bottom10">10 States with the least rate</span>
+    </div>
+  
+    <div id="statebarchart"></div>
+    <script src="statebarchart.js"></script>
+    <link href="statebarchart.css" rel="stylesheet">
+
+    <!-- usa state map -->
+
+    <div id= "asdfasdf" class="card p-3">
+        
+        <svg id="asadssa" width="960" height="600"></svg>
+        
+        <script>
+    
+          d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json").then(us => {
+            const color = d3.scaleQuantize([1, 10], d3.schemeBlues[9]);
+            var svg = d3.select('#asadssa');
+            var path = d3.geoPath();
+        
+            svg.append('g')
+              .attr('class', 'states')
+              .selectAll('path')
+              .data(topojson.feature(us, us.objects.states).features)
+              .enter()
+              .append('path')
+              .attr("fill", () => color(Math.random() * 10))
+              .attr('d', path)
+         
+              .on("click", function(event, d) {
+                console.log(d.properties.name);
+                  const {
+                    x,
+                    y,
+                    width,
+                    height
+                  } = this.getBBox();
+    
+    
+                  const state = d3.select(this)
+                    .attr("transform-origin", `${x + width / 2}px ${y + height / 2}px`).remove();
+                  svg.append(() => state.node());
+    
+                  d.properties.expanded = !d.properties.expanded;
+    
+                  state
+                    .transition()
+                    .duration(500)
+                    .attr("transform", d.properties.expanded ? "scale(1.25)" : "scale(1)")
+    
+                 
+                  });
+    
+            
+    
+            svg.append('path')
+              .attr('class', 'state-borders')
+              .attr('d', path(topojson.mesh(us, us.objects.states, (a, b) => a !== b)));
+          });
+        </script>
+
+        <!-- Timeliune chart -->
+        <h3 class="text-center">Timeseries multiline chart for Depressive Disorder rate group by 50 states in USA from 2020 through 2022</h3>
+        <div id="bystate"></div>
+        <script src="bystate.js"></script>
+
+
+      </body>
+
+</html>

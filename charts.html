@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Home</title>
+
+  <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+
+  <link href="node_modules/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="./github-dark-dimmed.min.css">
+  <script src="highlight.min.js"></script>
+
+  <script src="node_modules/highlightjs-copy/dist/highlightjs-copy.min.js"></script>
+  <link rel="stylesheet" href="node_modules/highlightjs-copy/dist/highlightjs-copy.min.css" />
+  <script src="https://d3js.org/topojson.v3.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+
+
+<script>
+ 
+var topology = topojson.topology({foo: geojson});
+ 
+</script> 
+  <script>
+    hljs.highlightAll();
+    hljs.addPlugin(new CopyButtonPlugin());
+  </script>
+
+  <script src="node_modules/d3/dist/d3.min.js"></script>
+
+</head>
+
+<body>
+    <h1 style="text-align: center;"> Mental Health Issues related to Covid-19 in
+        U.S.A from 2020 through 2022
+        </h1>
+  <div class="topnav">
+    
+    <a class="active" href="#home">Home</a>
+    <a href="./secondpage.html">Detailed Charts</a>
+    <a href="./thirdpage.html">Model Charts</a>
+  </div>
+  <h2 style="text-align: center;"> Map of US states with average rates of anxiety/depression symptoms in 2020-2022</h2>
+  <style>
+    /* Add a black background color to the top navigation */
+.topnav {
+  background-color: rgb(228, 227, 213);
+  overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+  float: left;
+  color: #000000;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+  background-color: #51a2d8;
+  color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+  background-color: #51a2d8;
+  color: white;
+}
+  </style>
+  
+
+  
+    
+ 
+  
+    <div id="map123">
+        <script src ="map1.js"></script>
+        <svg width="220" height="40" viewbox="0,0,320,50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><rect x="0" y="18" width="46" height="10" fill="#eff3ff"/><rect x="46" y="18" width="45" height="10" fill="#c6dbef"/><rect x="91" y="18" width="46" height="10" fill="#9ecae1"/><rect x="137" y="18" width="46" height="10" fill="#6baed6"/><rect x="183" y="18" width="46" height="10" fill="#4292c6"/><rect x="229" y="18" width="45" height="10" fill="#2171b5"/><rect x="274" y="18" width="46" height="10" fill="#084594"/></g><g transform="translate(0,28)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle"><g class="tick" opacity="1" transform="translate(46,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">27</text></g><g class="tick" opacity="1" transform="translate(91,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">29</text></g><g class="tick" opacity="1" transform="translate(137,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">31</text></g><g class="tick" opacity="1" transform="translate(183,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">33</text></g><g class="tick" opacity="1" transform="translate(229,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">35</text></g><g class="tick" opacity="1" transform="translate(274,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">37</text></g><text x="0" y="-16" fill="currentColor" text-anchor="start" font-weight="bold" class="title">Rate of Depression/Anxiety symptoms (%)</text></g></svg>
+    </div>
+
+
+
+
+
+
+
+
+    <div id= "asdfasdf" >
+      <h3 style="text-align: center;">Predictions of Anxiety Rates by State</h3>
+        <svg id="my_dataviz" width="1060" height="700"></svg>
+        
+        <script>
+        
+          // set the dimensions and margins of the graph
+          const margin = {top: 30, right: 30, bottom: 40, left: 60},
+              width = 700 - margin.left - margin.right,
+              height = 600 - margin.top - margin.bottom;
+        
+          
+          // append the svg object to the body of the page
+          const svg = d3.select("#my_dataviz")
+            .append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+              .attr("transform",
+                    `translate(${margin.left}, ${margin.top})`);
+          
+          //Read the data
+          d3.csv("data/state_preds.csv").then( function(data) {
+          
+            svg.append("text")
+            .attr("x", width / 2 )
+            .attr("y", 0)
+            // .style("text-anchor", "middle")
+            // .style("font-size", "2em")
+            // .text("Predictions of Anxiety Rates by State");
+        
+        
+            // Add X axis
+            const x = d3.scaleLinear()
+              .domain([20,50])
+              .range([ 0, width ]);
+            svg.append("g")
+              .attr("transform", `translate(0, ${height})`)
+              .call(d3.axisBottom(x));
+          
+            // Add Y axis
+            const y = d3.scaleLinear()
+              .domain([20,50])
+              .range([ height, 0]);
+            svg.append("g")
+              .call(d3.axisLeft(y));
+          
+            // Color scale: give me a specie name, I return a color
+            const color = d3.scaleOrdinal()
+            .domain(d3.extent(data, d => d.state))
+            .range(d3.schemeSet3);
+          
+          
+            // Highlight the specie that is hovered
+            const highlight = function(event,d){
+          
+              selected_specie = d.state
+          
+              d3.selectAll(".dot")
+                .transition()
+                .duration(200)
+                .style("fill", "lightgrey")
+                .attr("r", 3)
+          
+              d3.selectAll("." + selected_specie)
+                .transition()
+                .duration(200)
+                .style("fill", d => color(d.state))
+                .attr("r", 7)
+        
+                d3.selectAll('rect')
+                .transition().duration(200)//Set transition
+                .style('background', '#ededed')
+        
+                d3
+                .selectAll(".rect")
+                .transition()
+                .duration(200)
+                .style("fill", "lightgrey")
+                .attr("r", 3)
+          
+                d3
+              .selectAll("." + selected_specie)
+                .transition()
+                .duration(200)
+                .style("fill", d => color(d.state))
+                .attr("r", 7)
+        
+            }
+          
+            // Highlight the specie that is hovered
+            const doNotHighlight = function(event,d){
+              d3.selectAll(".dot")
+                .transition()
+                .duration(200)
+                .style("fill", d => color(d.state))
+                .attr("r", 5 )
+        
+              d3.selectAll('rect')
+              .transition()
+              .duration(200)
+              .style("fill", d => color(d.state))
+            }
+          
+            // Add dots
+            svg.append('g')
+              .selectAll("dot")
+              .data(data)
+              .enter()
+              .append("circle")
+                .attr("class", function (d) { return "dot " + d.state } )
+                .attr("cx", function (d) { return x(d.xval); } )
+                .attr("cy", function (d) { return y(d.pred); } )
+                .attr("r", 5)
+                .style("fill", d => color(d.state) )
+        
+                // .transition()           // apply a transition
+                // .duration(4000)         // apply it over 4000 milliseconds
+                // .attr('cx', 830)        // new horizontal position at 830 on x axis
+            // 2nd transition
+            //     .transition()           // apply a transition
+            //     .duration(2000)         // apply it over 4000 milliseconds
+            //     .attr('r', 2)          // new radius of 40 pixels
+            // // 3rd transition
+            //     .transition()           // apply a transition
+            //     .duration(2000)         // apply it over 4000 milliseconds
+            //     .attr('r', 5)
+              .on("mouseover", highlight)
+              .on("mouseleave", doNotHighlight )
+                      .transition()           // apply a transition
+                .duration(2000)         // apply it over 4000 milliseconds
+                .attr('r', 2)          // new radius of 40 pixels
+            // 3rd transition
+                .transition()           // apply a transition
+                .duration(2000)         // apply it over 4000 milliseconds
+                .attr('r', 5);
+        
+        //xlabel
+              svg.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", width)
+            .attr("y", height +30)
+            .text("Predicted Anxiety and Depression Rate(%)");
+        
+            //ylabel
+        
+            svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("y", -50)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("Actual Rate(%)");
+        
+          
+          
+        //Initialize legend
+            var legendItemSize = 12;
+            var legendSpacing = 4;
+            var xOffset = 780;
+            var yOffset = 20;
+            var legend = d3
+              .select('#my_dataviz')
+              .append('svg')
+              .selectAll('.legendItem')
+              .data(data);
+        
+            //Create legend items
+            legend
+              .enter()
+              .append('rect')
+              .attr('class', 'legendItem')
+              .attr('width', legendItemSize)
+              .attr('height', legendItemSize)
+              .style("fill", d => color(d.state))
+              .attr('transform',
+                (d, i) => {
+                  var x = xOffset;
+                  var y = yOffset + (legendItemSize + legendSpacing) * i;
+                  return `translate(${x}, ${y})`;
+                })
+        
+              .on("mouseover", highlight)
+              .on("mouseleave", doNotHighlight );
+        
+            //Create legend labels
+            legend
+              .enter()
+              .append('text')
+              .attr('x', xOffset + legendItemSize + 5)
+              .attr('y', (d, i) => yOffset + (legendItemSize + legendSpacing) * i + 12)
+              .text(d => d.state);
+        
+          });
+        
+          </script>
+
+<script>
+  
+
+let sample;
+let data = [];
+let staticArr = [];
+
+// let dim = {
+//     "width": 1000,
+//     "height": 1000,
+//     "margin": 50
+// };
+
+const svg1 = d3.select("#my_dataviz")
+    .append("svg")
+      .attr("width", 1000)
+      .attr("height", 1000);
+
+let g = svg1.append("g");
+           
+
+fetch("../data/state_ts_small1.csv")
+     .then(function(resp){
+        return resp.text();
+     })            
+     .then(function(data){
+      
+      console.log(data)
+        sample = $.csv.toArrays(data).slice(1);
+        convtoArray(sample);
+     });
+
+function convtoArray(sample){
+    sample.forEach(element => {
+        data.push({
+            date: d3.timeParse("%Y-%m-%d")(element[1]),
+            price: parseFloat(element[3])
+        })
+    });
+
+    staticArr = data;
+
+   let var1 = 0;
+   let var2 = 150;
+
+   let intId = setInterval(sendDraw, 1000);
+
+   function sendDraw() {
+        if(var2 >= data.length) {
+            clearInterval(intId);
+        }
+
+    draw(data.slice(0, var2));
+    var1 = var2;
+    var2 = var2 + 150;
+   }
+
+}     
+
+
+function draw(data) {
+  let scaleX = d3.scaleTime()
+                    .domain(d3.extent(data, function(d){
+                        return d.date;
+                    }))
+                    .nice()
+                    .range([50, 950]);
+
+    let t = d3.transition().duration(1000);
+    scaleX.domain(d3.extent(data, function(d){
+        return d.date;
+    }))
+    .nice();
+
+
+    let axisX = svg1.append('g')
+                .attr('transform', `translate(0, 950)`)
+                .call(d3.axisBottom(scaleX)); 
+                
+                
+    let scaleY = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d){
+        return d.Value
+    })])        
+    .nice()
+    .range([950, 50]);
+
+    let axisY = svg1.append('g')
+                  .attr('transform', `translate(65, 0)`)
+                  .call(d3.axisLeft(scaleY));
+
+    let line = d3.line()
+    .x(d => scaleX(d.date))
+    .y(d => scaleY(d.Value));
+
+    axisX   
+        .transition(t)
+        .call(d3.axisBottom(scaleX)
+        .tickFormat(d3.timeFormat("%d-%m-%Y"))
+        .ticks(15))
+        .selectAll("text")
+            .style("text-anchor", "left")
+            .attr("font-size", "1.2rem")
+            .attr("transform", "rotate(-45)");
+
+scaleY.domain([0, d3.max(staticArr, function(d){
+            return d.Value;
+            })])
+            .nice();
+  
+axisY.transition(t)
+            .call(d3.axisLeft(scaleY))
+            .selectAll("text")
+            .attr("font-size", "1.2rem");
+
+function update(data) {
+     
+    let group = g.selectAll("path")
+                  .data(data, (d) => d.date)
+                  .join(
+                    function(enter){
+                        return enter.append("path")
+                                    .attr({
+                                        'fill': 'red',
+                                        'stroke': 'black',
+                                        'stroke-width':'1px',
+                                        'd':line(data)   
+                                    })
+                    },
+                    function(update){
+                            return update;
+                    },
+                    function(exit){
+                        return exit.call(path => path.transition().duration(1000).attr("d", line(data)));
+                    }                
+                  )
+                  .call(path => path.transition().duration(5).attr("d", line(data)));
+
+}
+       
+update(data);
+
+} -->
+</script>
+
+
+
+
+</div>
+
+<!-- <div id="map123">
+    <script src ="map1.js"></script>
+    <svg width="220" height="40" viewbox="0,0,320,50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><rect x="0" y="18" width="46" height="10" fill="#eff3ff"/><rect x="46" y="18" width="45" height="10" fill="#c6dbef"/><rect x="91" y="18" width="46" height="10" fill="#9ecae1"/><rect x="137" y="18" width="46" height="10" fill="#6baed6"/><rect x="183" y="18" width="46" height="10" fill="#4292c6"/><rect x="229" y="18" width="45" height="10" fill="#2171b5"/><rect x="274" y="18" width="46" height="10" fill="#084594"/></g><g transform="translate(0,28)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle"><g class="tick" opacity="1" transform="translate(46,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">27</text></g><g class="tick" opacity="1" transform="translate(91,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">29</text></g><g class="tick" opacity="1" transform="translate(137,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">31</text></g><g class="tick" opacity="1" transform="translate(183,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">33</text></g><g class="tick" opacity="1" transform="translate(229,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">35</text></g><g class="tick" opacity="1" transform="translate(274,0)"><line stroke="currentColor" y2="6" y1="-10"/><text fill="currentColor" y="9" dy="0.71em">37</text></g><text x="0" y="-16" fill="currentColor" text-anchor="start" font-weight="bold" class="title">Rate of Depression/Anxiety symptoms (%)</text></g></svg>
+</div> -->
+  <div class="mt-3 text-end"><a target="_blank" href="#"><i class="bi bi-arrow-up"></i> top</a></div>
+
+</body>
+
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>David Li · Portfolio</title>
+    <meta
+      name="description"
+      content="David Li (Zuowei Li) — data products, visualization systems, and newsroom automation."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./">David Li</a>
+        <nav class="nav" aria-label="Primary">
+          <a href="#work">Work</a>
+          <a href="#skills">Skills</a>
+          <a href="https://github.com/jxlzn">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-media" aria-hidden="true"></div>
+        <div class="wrap hero-content">
+          <p class="brand-mark">David Li</p>
+          <h1>Data products &amp; chart systems for newsrooms</h1>
+          <p>
+            I build automation that turns messy source data into print-ready
+            charts, interactive stories, and agent-ready APIs — without style
+            drift across teams.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#work">See selected work</a>
+            <a class="btn btn-ghost" href="https://github.com/jxlzn">GitHub · jxlzn</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="work">
+        <div class="wrap">
+          <h2>Selected work</h2>
+          <p class="section-lead">
+            Case studies and public projects across newsroom tooling, data
+            visualization, and product interfaces.
+          </p>
+
+          <div class="project-list">
+            <article class="project">
+              <div>
+                <h3>Newsroom chart automation</h3>
+                <div class="meta">
+                  <span>Python · PDF · Datawrapper · MCP</span>
+                  <span>Professional case study</span>
+                </div>
+                <p>
+                  Unified chart generation for multiple newsroom skins —
+                  print PDF, preview images, and Datawrapper payloads from one
+                  recipe registry, with visual regression gates.
+                </p>
+                <div class="project-links">
+                  <a href="case-studies/chart-automation.html">Read case study</a>
+                </div>
+              </div>
+              <div class="project-visual">
+                <img src="assets/images/cpi.png" alt="Macro CPI chart sample" />
+              </div>
+            </article>
+
+            <article class="project">
+              <div>
+                <h3>Asean Intelligence</h3>
+                <div class="meta">
+                  <span>Svelte · Interactive report</span>
+                </div>
+                <p>
+                  Interactive regional intelligence experience for enterprise
+                  energy, AI adoption, and sustainability findings.
+                </p>
+                <div class="project-links">
+                  <a href="https://asean-intelligence.vercel.app" target="_blank" rel="noreferrer">Live site</a>
+                  <a href="https://github.com/jxlzn/asean-intelligence" target="_blank" rel="noreferrer">Repo</a>
+                </div>
+              </div>
+              <div class="project-visual">
+                <img src="assets/images/mw_sti.png" alt="Market wrap style chart sample" />
+              </div>
+            </article>
+
+            <article class="project">
+              <div>
+                <h3>STI60</h3>
+                <div class="meta">
+                  <span>HTML · Market data UI</span>
+                </div>
+                <p>
+                  Market-facing interface work around Singapore index storytelling
+                  and readable financial presentation.
+                </p>
+                <div class="project-links">
+                  <a href="https://sti60.vercel.app" target="_blank" rel="noreferrer">Live site</a>
+                  <a href="https://github.com/jxlzn/sti60" target="_blank" rel="noreferrer">Repo</a>
+                </div>
+              </div>
+              <div class="project-visual">
+                <img src="assets/images/bdi.png" alt="Baltic Dry Index chart sample" />
+              </div>
+            </article>
+
+            <article class="project">
+              <div>
+                <h3>Universities explorer</h3>
+                <div class="meta">
+                  <span>Svelte</span>
+                </div>
+                <p>
+                  Product UI for browsing and comparing university data with a
+                  focused interaction model.
+                </p>
+                <div class="project-links">
+                  <a href="https://universities-2.vercel.app" target="_blank" rel="noreferrer">Live site</a>
+                  <a href="https://github.com/jxlzn/universities-2" target="_blank" rel="noreferrer">Repo</a>
+                </div>
+              </div>
+              <div class="project-visual">
+                <img src="assets/images/bar.png" alt="Bar chart sample" />
+              </div>
+            </article>
+
+            <article class="project">
+              <div>
+                <h3>COVID anxiety visualization</h3>
+                <div class="meta">
+                  <span>D3 · HTML</span>
+                </div>
+                <p>
+                  Map and chart work on US anxiety-rate predictions — early
+                  exploration of spatial + categorical storytelling.
+                </p>
+                <div class="project-links">
+                  <a href="https://github.com/jxlzn/Covid-Anxiety-D3-Visualization" target="_blank" rel="noreferrer">Repo</a>
+                  <a href="projects/dsci554/" target="_blank" rel="noreferrer">Related class site</a>
+                </div>
+              </div>
+              <div class="project-visual">
+                <img src="assets/images/line.png" alt="Line chart sample" />
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="skills">
+        <div class="wrap">
+          <h2>Skills</h2>
+          <p class="section-lead">
+            Comfortable shipping across the data → product path: contracts,
+            rendering, evaluation, and interfaces people actually use.
+          </p>
+          <ul class="skills">
+            <li>Python packaging &amp; CLIs</li>
+            <li>Chart / PDF rendering</li>
+            <li>Datawrapper &amp; newsroom pipelines</li>
+            <li>Visual regression &amp; fixture evals</li>
+            <li>HTTP APIs &amp; MCP servers</li>
+            <li>D3 / Svelte / interactive viz</li>
+            <li>SQL &amp; analytical storytelling</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>© David Li (Zuowei Li)</span>
+        <span>
+          <a href="https://github.com/jxlzn">github.com/jxlzn</a>
+        </span>
+      </div>
+    </footer>
+    <script src="js/main.js"></script>
+  </body>
+</html>

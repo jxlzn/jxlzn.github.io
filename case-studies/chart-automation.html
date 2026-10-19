@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Newsroom chart automation · David Li</title>
+    <title>Chart automation · David Li</title>
     <meta
       name="description"
-      content="Case study: unifying newsroom chart generation into a single Python package with print PDF, Datawrapper, and agent interfaces."
+      content="Case study: unifying chart generation into a single Python package with print PDF, Datawrapper, and agent interfaces."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,7 +30,7 @@
     <main>
       <section class="case-hero">
         <div class="wrap">
-          <h1>Newsroom chart automation</h1>
+          <h1>Chart automation</h1>
           <p>
             A single source of truth for chart contracts, renderers, and
             regression — so web apps, scheduled jobs, and AI agents produce the
@@ -43,7 +43,7 @@
         <div class="wrap prose">
           <h2>Problem</h2>
           <p>
-            The same chart logic lived in more than one place: a newsroom web
+            The same chart logic lived in more than one place: a publishing web
             application and scheduled delivery jobs. Each copy drifted —
             duplicated adapters, inconsistent skins, and harder visual QA.
           </p>
@@ -51,17 +51,17 @@
           <h2>Approach</h2>
           <p>
             I helped centralize generation into a Python package with a clear
-            model: chart family → newsroom profile → recipe → renderer. Callers
+            model: chart family → brand profile → recipe → renderer. Callers
             own data access, secrets, and delivery; the package owns “how to
             draw” and “how to assemble payloads.”
           </p>
           <pre class="flow">source data → adapter → canonical payload
 canonical payload + recipe → renderer
-recipe = family + newsroom skin + output target + eval policy</pre>
+recipe = family + brand skin + output target + eval policy</pre>
 
           <h2>What it produces</h2>
           <ul>
-            <li><strong>Print PDF</strong> — editable/vector output with newsroom size and color constraints</li>
+            <li><strong>Print PDF</strong> — editable/vector output with print size and color constraints</li>
             <li><strong>Preview PNG</strong> — fast review artifact for humans and evals</li>
             <li><strong>Datawrapper payload</strong> — CSV + metadata for dry-run or publish</li>
           </ul>
@@ -109,7 +109,7 @@ recipe = family + newsroom skin + output target + eval policy</pre>
           <h2>Impact</h2>
           <ul>
             <li>One installable package instead of copied renderers across apps and jobs</li>
-            <li>Newsroom skins selected by recipe — chart logic stays brand-agnostic</li>
+            <li>Brand skins selected by recipe — chart logic stays brand-agnostic</li>
             <li>Agent-ready surfaces (skill / MCP / API) without a second implementation</li>
           </ul>
 

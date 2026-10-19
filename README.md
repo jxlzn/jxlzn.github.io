@@ -7,7 +7,7 @@ Live: https://jxlzn.github.io/
 ## Contents
 
 - Home page with selected work
-- Case study: newsroom chart automation
+- Case study: chart automation
 - Archived class project under `projects/dsci554/`
 - Links to public GitHub / Vercel projects
 

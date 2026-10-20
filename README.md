@@ -7,7 +7,7 @@ Live: https://jxlzn.github.io/
 ## Contents
 
 - Home page with selected work
-- Case study: chart automation
+- Case study: BT AI Tools — Internal finance AI tool
 - Archived class project under `projects/dsci554/`
 - Links to public GitHub / Vercel projects
 

@@ -6,7 +6,7 @@
     <title>BT AI Tools — Internal finance AI tool · David Li</title>
     <meta
       name="description"
-      content="Case study: unifying chart generation into a single Python package with print PDF, Datawrapper, and agent interfaces."
+      content="Case study: BT AI Tools, an internal AI finance chart creation tool for print, Datawrapper, and agent workflows."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,9 +32,10 @@
         <div class="wrap">
           <h1>BT AI Tools — Internal finance AI tool</h1>
           <p>
-            A single source of truth for chart contracts, renderers, and
-            regression — so web apps, scheduled jobs, and AI agents produce the
-            same print and Datawrapper outputs.
+            An internal AI tool for creating finance charts — one system that
+            turns source data into print-ready PDFs, preview images, and
+            Datawrapper payloads, and that people or agents can call the same
+            way.
           </p>
         </div>
       </section>
@@ -43,17 +44,19 @@
         <div class="wrap prose">
           <h2>Problem</h2>
           <p>
-            The same chart logic lived in more than one place: a publishing web
-            application and scheduled delivery jobs. Each copy drifted —
-            duplicated adapters, inconsistent skins, and harder visual QA.
+            Finance charts were created in more than one place: a web app and
+            scheduled jobs each kept their own drawing logic. Copies drifted —
+            inconsistent house style, duplicated adapters, and slower visual QA
+            before a chart could ship.
           </p>
 
           <h2>Approach</h2>
           <p>
-            I helped centralize generation into a Python package with a clear
-            model: chart family → brand profile → recipe → renderer. Callers
-            own data access, secrets, and delivery; the package owns “how to
-            draw” and “how to assemble payloads.”
+            BT AI Tools is the internal finance chart creation layer. I helped
+            centralize it as a Python package with a clear model: chart family
+            → brand profile → recipe → renderer. Callers own data access,
+            secrets, and delivery; the tool owns “how to draw a finance chart”
+            and “how to assemble a publish payload.”
           </p>
           <pre class="flow">source data → adapter → canonical payload
 canonical payload + recipe → renderer
@@ -61,13 +64,13 @@ recipe = family + brand skin + output target + eval policy</pre>
 
           <h2>What it produces</h2>
           <ul>
-            <li><strong>Print PDF</strong> — editable/vector output with print size and color constraints</li>
+            <li><strong>Print PDF</strong> — editable/vector finance charts with print size and color constraints</li>
             <li><strong>Preview PNG</strong> — fast review artifact for humans and evals</li>
             <li><strong>Datawrapper payload</strong> — CSV + metadata for dry-run or publish</li>
           </ul>
           <p>
-            The same recipe can also be exercised through a CLI, HTTP API, or MCP
-            server so agents and services share one contract.
+            The same recipe can be run from a CLI, HTTP API, or MCP server, so
+            editors, jobs, and AI agents create charts through one contract.
           </p>
 
           <h2>Coverage snapshot</h2>
@@ -100,7 +103,7 @@ recipe = family + brand skin + output target + eval policy</pre>
 
           <h2>Quality bar</h2>
           <p>
-            Print PDF is the canonical artifact. Fixtures + hard visual
+            Print PDF is the canonical finance chart. Fixtures + hard visual
             references gate merges; heatmaps and side-by-side diffs are review
             aids, not silent overwrite paths. Coverage states make it obvious
             which recipes are production-protected versus diagnostic-only.
@@ -108,9 +111,9 @@ recipe = family + brand skin + output target + eval policy</pre>
 
           <h2>Impact</h2>
           <ul>
-            <li>One installable package instead of copied renderers across apps and jobs</li>
-            <li>Brand skins selected by recipe — chart logic stays brand-agnostic</li>
-            <li>Agent-ready surfaces (skill / MCP / API) without a second implementation</li>
+            <li>One internal AI chart tool instead of copied renderers across apps and jobs</li>
+            <li>Brand skins selected by recipe — finance chart logic stays brand-agnostic</li>
+            <li>Editors and agents create the same chart through skill / MCP / API</li>
           </ul>
 
           <h2>Stack</h2>
@@ -121,9 +124,9 @@ recipe = family + brand skin + output target + eval policy</pre>
 
           <p>
             <em>
-              Source repository is internal. This page is a public case study
-              with representative samples; ask for a private walkthrough if
-              relevant.
+              BT AI Tools is an internal product. This page is a public case
+              study with representative samples; ask for a private walkthrough
+              if relevant.
             </em>
           </p>
 
